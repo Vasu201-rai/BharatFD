@@ -1,0 +1,29 @@
+pip install django-redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}
+# views.py
+from django.core.cache import cache
+
+class FAQListView(APIView):
+    def get(self, request):
+        lang = request.GET.get('lang', 'en')
+        cache_key = f"faqs_{lang}"
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data)
+
+        faqs = FAQ.objects.all()
+        data = []
+        for faq in faqs:
+            data.append({
+                'question': faq.get_translated_question(lang),
+                'answer': faq.get_translated_answer(lang),
+            })
+
+        # Cache for 1 hour
+        cache.set(cache_key, data, timeout=3600)
+        return Response(data)
