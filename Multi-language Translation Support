@@ -1,0 +1,20 @@
+pip install googletrans==4.0.0-rc1
+from googletrans import Translator
+
+def auto_translate(self):
+    translator = Translator()
+    if not self.question_hi:
+        self.question_hi = translator.translate(self.question, src='en', dest='hi').text
+    if not self.question_bn:
+        self.question_bn = translator.translate(self.question, src='en', dest='bn').text
+    if not self.answer_hi:
+        self.answer_hi = translator.translate(self.answer, src='en', dest='hi').text
+    if not self.answer_bn:
+        self.answer_bn = translator.translate(self.answer, src='en', dest='bn').text
+    self.save()
+
+# Call this method during save in the model:
+def save(self, *args, **kwargs):
+    if not self.question_hi or not self.answer_hi or not self.question_bn or not self.answer_bn:
+        self.auto_translate()
+    super().save(*args, **kwargs)
