@@ -1,0 +1,5 @@
+pip install django-ckeditor
+INSTALLED_APPS = [
+    # other apps
+    'ckeditor',
+]
